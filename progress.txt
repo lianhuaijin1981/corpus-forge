@@ -1,5 +1,15 @@
 # CorpusForge 开发进度
 
+## Git 提交记录
+
+| 提交 | 说明 |
+|------|------|
+| `878e7fd` | feat: corpus-forge 语料管理平台初始提交（34 文件，7852 行）|
+
+远程仓库：https://github.com/lianhuaijin1981/corpus-forge
+
+---
+
 ## 项目概述
 
 CorpusForge 是一个语料管理平台，用于 AI 训练数据的全生命周期管理，包括语料录入、标注、审核、检索和统计分析。
