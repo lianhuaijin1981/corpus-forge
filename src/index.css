@@ -1,0 +1,62 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f0f2f5;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 登录页背景 */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+/* 语料列表 - 被拒绝行样式 */
+.row-rejected {
+  background-color: #fff2f0 !important;
+}
+.row-rejected:hover > td {
+  background-color: #fff1f0 !important;
+}
+
+/* 语料列表 - 统计卡片交互 */
+.ant-statistic-title {
+  font-size: 13px !important;
+  color: #8c8c8c !important;
+}
+
+/* 表格行悬浮效果增强 */
+.ant-table-tbody > tr {
+  transition: all 0.2s ease;
+}
+.ant-table-tbody > tr:hover > td {
+  cursor: pointer;
+}
