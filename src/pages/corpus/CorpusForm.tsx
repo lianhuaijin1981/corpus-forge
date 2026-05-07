@@ -1,6 +1,5 @@
 import { useEffect, useCallback, useMemo } from 'react'
 import { Modal, Form, Input, Select, Space, Upload, message, Typography, Divider } from 'antd'
-import type { UploadFile, UploadProps } from 'antd'
 import { InboxOutlined, FileOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import type { Corpus, CorpusType } from '../../types'
 import { useCorpusStore } from '../../stores/corpusStore'
@@ -177,6 +176,7 @@ export default function CorpusForm({ open, editingCorpus, onClose, onSuccess }: 
       const commonData = {
         title: values.title,
         type: values.type,
+        status: 'draft' as const,
         content: values.type === 'text' ? values.content : '',
         fileUrl: values.type !== 'text' ? values.fileUrl : '',
         libraryId: values.libraryId,

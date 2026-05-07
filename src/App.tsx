@@ -5,6 +5,7 @@ import Login from './pages/auth/Login'
 import CorpusList from './pages/corpus/CorpusList'
 import CorpusLibrary from './pages/corpus/CorpusLibrary'
 import AnnotationList from './pages/annotation/AnnotationList'
+import AnnotationDetailPage from './pages/annotation/AnnotationDetailPage'
 import ReviewList from './pages/review/ReviewList'
 import SearchPage from './pages/search/SearchPage'
 import StatsPage from './pages/stats/StatsPage'
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="corpus" element={<CorpusList />} />
         <Route path="corpus/library" element={<CorpusLibrary />} />
         <Route path="annotation" element={<AnnotationList />} />
+        <Route path="annotation/:taskId" element={<AnnotationDetailPage />} />
         <Route path="review" element={<ReviewList />} />
         <Route path="search" element={<SearchPage />} />
         <Route path="stats" element={<StatsPage />} />

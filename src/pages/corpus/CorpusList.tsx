@@ -236,7 +236,7 @@ export default function CorpusList() {
     message.success('已提交审核')
   }
 
-  const handleTableChange: TableProps<Corpus>['onChange'] = (pag, _filters, sorter) => {
+  const handleTableChange: TableProps<Corpus>['onChange'] = (pag, _filters, _sorter) => {
     setPagination(pag)
   }
 
