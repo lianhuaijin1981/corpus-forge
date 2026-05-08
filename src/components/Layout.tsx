@@ -50,8 +50,12 @@ export default function AppLayout() {
   const { currentUser, logout } = useAuthStore()
 
   const pathname = location.pathname
+  // 精确匹配：/corpus/library 使用 /corpus/library，/corpus 使用 /corpus，其他路径原样
   const selectedKey = pathname
+  // 语料管理子路径默认展开
   const defaultOpenKeys = pathname.startsWith('/corpus') ? ['/corpus-group'] : []
+  // 对于 /annotation/:taskId 路径，高亮 /annotation
+  const activeKey = pathname.startsWith('/annotation/') ? '/annotation' : selectedKey
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -97,7 +101,7 @@ export default function AppLayout() {
         <Menu
           theme="dark"
           mode="inline"
-          selectedKeys={[selectedKey]}
+          selectedKeys={[activeKey]}
           defaultOpenKeys={defaultOpenKeys}
           items={menuItems}
           onClick={({ key }) => navigate(key)}

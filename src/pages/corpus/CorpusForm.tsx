@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from 'react'
+import { useEffect, useCallback, useMemo, useRef } from 'react'
 import { Modal, Form, Input, Select, Space, Upload, message, Typography, Divider } from 'antd'
 import { InboxOutlined, FileOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
 import type { Corpus, CorpusType } from '../../types'
@@ -152,11 +152,11 @@ export default function CorpusForm({ open, editingCorpus, onClose, onSuccess }: 
     }
   }, [open, editingCorpus, form])
 
-  // 切换类型时清空内容和文件
-  const prevTypeRef = { current: watchType }
+  // 切换类型时清空内容和文件（使用 useRef 避免每次渲染创建新对象）
+  const prevTypeRef = useRef<CorpusType | undefined>(undefined)
   useEffect(() => {
     if (!open) return
-    if (prevTypeRef.current && prevTypeRef.current !== watchType) {
+    if (prevTypeRef.current !== undefined && prevTypeRef.current !== watchType) {
       form.setFieldsValue({ content: '', fileUrl: '' })
     }
     prevTypeRef.current = watchType

@@ -1,126 +1,98 @@
-# CorpusForge 开发进度
+=========== CorpusForge 开发进度 ===========
 
-## Git 提交记录
+【最近更新 — 2026-05-08 第二轮】
 
-| 提交 | 说明 |
-|------|------|
-| `878e7fd` | feat: corpus-forge 语料管理平台初始提交（34 文件，7852 行）|
+✅ 语料检索模块深度增强（SearchPage.tsx 完整重写）
+  - HighlightText 子组件：搜索结果关键词高亮显示
+  - CorpusPreviewModal 子组件：语料详情预览弹窗（Descriptions + 内容预览 + 高亮）
+  - exportToCSV 函数：搜索结果导出 CSV（BOM UTF-8 编码，Excel 兼容）
+  - 收藏功能：通过 localStorage 持久化（key: corpusforge-search-favorites）
+  - 搜索历史：通过 localStorage 持久化（key: corpusforge-search-history），支持清空
+  - 高级筛选新增 RangePicker 日期范围筛选
+  - 热门标签从 corpusList 真实数据按频次提取
+  - 新增语料库快速检索区（按语料库过滤语料）
 
-远程仓库：https://github.com/lianhuaijin1981/corpus-forge
+✅ 统计分析模块深度增强（StatsPage.tsx 完整重写）
+  - 接入 reviewStore 计算审核通过率、待处理数量等审核统计
+  - growthTrendOption：近12个月增长趋势双轴图（柱状图=新增语料，折线=累计总量）
+  - taskProgressOption：标注任务完成率横向柱图 Top 8
+  - 三个进度条卡片：标注完成率 / 语料通过率 / 审核通过率
+  - 核心指标卡片增加子状态 Tag（今日新增、本周新增、待审核等）
+  - exportStatsReport：导出 JSON 格式统计报告
 
----
+✅ 系统管理模块深度增强（AdminPage.tsx 完整重写）
+  - 操作日志系统：appendLog + loadLogs + saveLogs（key: corpusforge-operation-logs，最多200条）
+  - 系统配置：loadConfig + saveConfig（key: corpusforge-sys-config），支持保存/恢复默认
+  - BatchRoleModal 子组件：批量分配角色弹窗
+  - 用户管理Tab顶部统计卡片行（总数/活跃/待审核/已禁用 + 角色分布Badge）
+  - Table 增加 rowSelection 复选框，支持批量禁用/启用/分配角色
+  - 系统配置Tab改为 Switch + Input 可编辑表单
+  - 操作日志Tab支持搜索过滤，日志含彩色状态 Tag
+  - 全部确认操作使用 Popconfirm 替代 Modal.confirm
 
-## 项目概述
+✅ 审核中心模块完善（ReviewList.tsx 重写 + reviewStore.ts 新建）
+  - reviewStore.ts：审核任务状态管理（Mock 数据 + Zustand + persist）
+  - ReviewList.tsx 完整重写：统计卡片、多维筛选、批量通过/驳回、审核详情弹窗
 
-CorpusForge 是一个语料管理平台，用于 AI 训练数据的全生命周期管理，包括语料录入、标注、审核、检索和统计分析。
+✅ 其他修复与优化
+  - Layout.tsx：布局组件优化
+  - CorpusForm.tsx：语料表单优化
+  - TypeScript 编译零错误（tsc --noEmit 全部通过）
 
-技术栈：React + TypeScript + Vite + Ant Design + zustand + react-router-dom v7
+===========
 
----
+【第一轮更新 — 2026-05-08】
 
-## 功能模块进度
+✅ 标注任务模块（全功能完成）
+  - annotationStore.ts：标注任务状态管理（Mock 数据 + Zustand + persist）
+  - AnnotationList.tsx：完整任务列表，含统计卡片、多维筛选、分页排序、批量操作
+  - AnnotationForm.tsx：新建/编辑任务表单
+  - AnnotationDetail.tsx：任务详情页（统计卡片、任务信息、标注标签展示、关联语料表格）
+  - AnnotationDetailPage.tsx：路由级任务详情页（/annotation/:taskId）
+  - 修复 TypeScript 构建错误，安装 tslib 依赖
 
-### ✅ 已完成模块
+===========
 
-#### 1. 项目骨架搭建
-- [x] React Router 配置（含登录守卫和路由守卫）
-- [x] 主布局 Layout（侧边栏导航 + 用户下拉菜单）
-- [x] 登录页（演示账号：admin / admin123）
-- [x] 类型定义 types/index.ts（完整的数据模型）
-- [x] 认证 Store（authStore，含登录态持久化）
+【基础模块】
 
-#### 2. 语料管理模块（核心）
-- [x] 语料列表页（CorpusList）
-  - 多维筛选：关键词 / 类型 / 状态 / 语料库 / 创建人 / 标签 / 日期范围
-  - 多列排序：标题 / 类型 / 状态 / 创建时间 / 更新时间
-  - 分页：10/20/50/100 每页，快速跳转，范围显示
-  - 批量操作：批量提交审核 / 批量修改语料库 / 批量导出 / 批量删除
-  - 状态统计栏：顶部 6 张统计卡片，点击可筛选
-  - UI 优化：表格密度切换、标签 +N 折叠、拒绝行高亮
-- [x] 新建/编辑语料（CorpusForm）
-  - 字段校验：标题格式、内容必填（文本）/ 文件必传（非文本）、标签数量限制
-  - 文件上传：Dragger 拖拽上传，按类型限制文件格式（模拟上传）
-  - 自动版本记录：编辑时自动检测变更字段并记录版本历史
-  - 动态表单：切换语料类型时自动切换内容输入方式
-- [x] 语料详情（CorpusDetail）
-  - 基本信息、标签、内容预览
-  - 元数据展示、统计信息
-  - 版本历史 Timeline 展示
-  - 操作：提交审核 / 编辑 / 删除
-- [x] 语料库管理（CorpusLibrary）
-  - 语料库列表、新建 / 编辑 / 删除
-  - 语料库详情 Modal
+✅ 项目骨架搭建
+  - React 19 + TypeScript 6 + Vite + Ant Design v6 + Zustand v5 + React Router v7 + ECharts + dayjs + uuid
+  - 主布局（侧边栏导航、用户信息、路由守卫）
 
-#### 3. 数据持久化
-- [x] zustand + persist 持久化存储
-- [x] 语料 CURD + 语料库 CURD
-- [x] 批量操作：批量删除、批量提交审核、批量修改语料库
-- [x] 自动版本记录（content/title/type/tags/libraryId/metadata 变更检测）
-- [x] 语料库计数自动刷新
+✅ 语料管理模块
+  - CorpusList.tsx：语料列表（多维筛选/排序/分页/批量操作/统计卡片）
+  - CorpusForm.tsx：新建/编辑语料（字段校验/文件上传/自动版本记录）
+  - CorpusDetail.tsx：语料详情（版本历史/元数据显示）
+  - CorpusLibrary.tsx：语料库管理
+  - corpusStore.ts：语料状态管理（Mock 数据 + CRUD + 版本记录 + 筛选，含15条mock语料、5个mock语料库）
 
----
+✅ 认证模块
+  - Login.tsx：登录页面（admin / admin123）
+  - authStore.ts：用户认证状态管理（Mock 用户 + 角色权限）
 
-### 🔨 待开发模块
+===========
 
-#### 4. 标注任务管理
-- [ ] 标注任务列表（AnnotationList）
-- [ ] 创建标注任务（选择语料库、分配标注员、配置标签体系）
-- [ ] 标注工作台（标注界面、标签打标、进度保存）
-- [ ] 标注进度监控
+【localStorage Key 汇总】
+  corpusforge-auth          — 认证状态持久化
+  corpusforge-corpus        — 语料数据持久化
+  corpusforge-review        — 审核数据持久化
+  corpusforge-search-favorites  — 搜索收藏ID集合
+  corpusforge-search-history    — 搜索历史
+  corpusforge-operation-logs    — 操作日志（最多200条）
+  corpusforge-sys-config        — 系统配置
 
-#### 5. 审核中心
-- [ ] 审核任务列表（ReviewList）
-- [ ] 审核详情页（查看语料 / 审核标注结果）
-- [ ] 审核通过与拒绝（带审核意见）
-- [ ] 审核历史记录
+===========
 
-#### 6. 语料检索
-- [ ] 高级检索页（SearchPage）
-- [ ] 全文搜索 + 多维筛选
-- [ ] 搜索历史记录
-- [ ] 收藏夹管理
-- [ ] 相似语料推荐
+【待开发功能】
+  - 标注工作区（实际标注交互界面）
+  - AnnotationDetail 中语料批量分配功能
+  - 后端 API 对接
 
-#### 7. 统计分析
-- [ ] 统计仪表盘（StatsPage）
-- [ ] 语料数量趋势图（ECharts）
-- [ ] 标注进度分析
-- [ ] 用户活跃度统计
+===========
 
-#### 8. 系统管理
-- [ ] 用户管理（AdminPage / 用户列表 / 角色分配）
-- [ ] 角色权限管理
-- [ ] 系统配置（存储 / 通知 / 安全）
-- [ ] 操作日志查询
+【技术栈】
+  React 19 + TypeScript 6 + Vite + Ant Design v6 + Zustand v5 + React Router v7 + ECharts + dayjs + uuid
 
----
-
-## 当前 Mock 数据
-
-| 数据 | 数量 |
-|------|------|
-| 语料（Corpus） | 15 条（覆盖 5 个语料库，4 种类型，5 种状态） |
-| 语料库（CorpusLibrary） | 5 个（公开 / 私有 / 项目） |
-| 演示用户 | admin、creator1 |
-
----
-
-## 快速启动
-
-```bash
-cd corpus-forge
-npm install
-npm run dev
-```
-
-访问 http://localhost:5173，登录账号：`admin` / `admin123`
-
----
-
-## 最近更新（2026-05-08）
-
-- 全面增强语料列表：多维筛选、多列排序、分页增强、批量操作、状态统计栏
-- 全面重写新建/编辑语料表单：完善字段校验、文件上传、自动版本记录
-- 修复 `updateCorpus` 版本记录 bug（重复判断条件）
-- 修复 `CorpusStatus` 类型不匹配问题
-- TypeScript 编译零错误
+【仓库地址】
+  https://github.com/lianhuaijin1981/corpus-forge
+  （分支：master）
