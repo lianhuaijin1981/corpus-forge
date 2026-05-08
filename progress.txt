@@ -1,5 +1,81 @@
 =========== CorpusForge 开发进度 ===========
 
+【第三轮更新 — 2026-05-08 上线差距优化】
+
+✅ ErrorBoundary + 错误页面体系
+  - ErrorBoundary.tsx：全局错误边界组件（捕获渲染错误、显示重试/刷新按钮、开发环境展示堆栈）
+  - NotFoundPage.tsx：404 页面（返回上一页/回到首页）
+  - ForbiddenPage.tsx：403 页面（无权限提示）
+  - ServerErrorPage.tsx：500 页面（服务器错误提示）
+  - App.tsx 集成 ErrorBoundary 包裹全局路由
+
+✅ API 服务层搭建
+  - api/client.ts：axios 实例封装（请求/响应拦截器、统一错误处理、401 自动跳转登录）
+  - api/corpus.ts：语料 + 语料库 API（CRUD、批量操作、文件上传、导出）
+  - api/annotation.ts：标注任务 + 审核 API（CRUD、生命周期管理、审核工作流）
+  - api/admin.ts：认证 + 用户管理 + 搜索 + 统计 + 系统 API
+  - api/index.ts：统一导出
+
+✅ 环境变量配置体系
+  - .env：通用配置（VITE_APP_TITLE、VITE_APP_VERSION）
+  - .env.development：开发环境（API_BASE_URL、MOCK_ENABLED）
+  - .env.production：生产环境配置
+  - vite.config.ts 增强：路径别名(@)、开发代理、chunk 分包优化
+
+✅ 标注工作区核心功能（AnnotationWorkspace.tsx）
+  - NER 实体标注：文本选中高亮标注（选标签 → 拖选文本 → 自动标记）
+  - 分类/情感/意图标注：标签选择式标注（单选/多选）
+  - 标注导航：上一条/下一条、进度条、已完成/跳过计数
+  - 标注历史：撤销/重做（最多50步）
+  - 全屏模式：标注沉浸式体验
+  - 已标注实体列表：可视化展示、支持删除
+  - 标记完成/跳过/提交所有标注
+  - AnnotationWorkspacePage.tsx：路由级包装组件
+  - AnnotationDetail.tsx 增加"开始标注"入口按钮
+  - 路由新增 /annotation/:taskId/workspace
+
+✅ 前端权限控制系统
+  - PermissionGuard.tsx：权限守卫组件（角色检查、权限检查、高阶组件 withPermission）
+  - usePermission Hook：hasRole、hasAnyRole、hasPermission、isAdmin、isSuperAdmin
+  - Layout.tsx 菜单权限过滤：根据用户角色动态显示菜单项
+    - 审核中心：仅 super_admin/admin/reviewer 可见
+    - 系统管理：仅 super_admin/admin 可见
+    - 其他模块：所有角色可见
+
+✅ Layout 组件增强
+  - 菜单权限过滤（基于角色的动态菜单）
+  - 修改密码弹窗（Modal + Form 校验）
+  - 用户下拉菜单重构（个人资料/修改密码/退出登录）
+
+✅ 全局样式体系完善
+  - CSS 变量体系：主题色、背景色、文字色、边框色、间距、圆角、阴影、过渡
+  - 统一间距工具类：mb-sm/mb-md/mb-lg、mt-sm/mt-md/mt-lg
+  - 骨架屏动画 CSS
+  - 响应式断点（768px/576px）
+  - 减少动画偏好（prefers-reduced-motion）
+  - 卡片统一样式增强
+
+✅ 通用组件库
+  - Skeletons.tsx：表格/统计卡片/详情页/表单骨架屏
+  - PageLoading.tsx：页面级加载组件（支持延迟显示避免闪烁）
+  - EmptyState.tsx：通用空状态组件（支持操作按钮）
+
+✅ 工具函数库
+  - utils/helpers.ts：formatDateTime/formatRelativeTime/formatFileSize/truncateText/
+    debounce/throttle/generateId/deepClone/downloadFile/downloadBlob/
+    getStatusColor/getStatusLabel/getPriorityColor/getPriorityLabel/safeJsonParse/cx
+  - utils/hooks.ts：useAsyncAction（异步操作+loading+消息提示）、
+    useLocalStorage（本地存储Hook）、usePagination（分页Hook）
+  - utils/index.ts、components/index.ts：统一导出
+
+✅ 构建优化
+  - vite.config.ts：路径别名 @/、开发代理 /api → localhost:3001、
+    手动 chunk 分包（vendor-react/vendor-antd/vendor-echarts）
+  - TypeScript 编译零错误（tsc --noEmit 全部通过）
+  - Vite 生产构建成功
+
+===========
+
 【最近更新 — 2026-05-08 第二轮】
 
 ✅ 语料检索模块深度增强（SearchPage.tsx 完整重写）
@@ -84,9 +160,11 @@
 ===========
 
 【待开发功能】
-  - 标注工作区（实际标注交互界面）
   - AnnotationDetail 中语料批量分配功能
-  - 后端 API 对接
+  - 后端 API 真实对接（当前 API 层已搭建，仍使用 mock 数据）
+  - 单元测试 / 集成测试
+  - 国际化 i18n
+  - 音频/图像/视频标注工作区
 
 ===========
 

@@ -4,12 +4,64 @@
   box-sizing: border-box;
 }
 
+:root {
+  /* 主题色 */
+  --cf-primary: #1677ff;
+  --cf-primary-hover: #4096ff;
+  --cf-primary-active: #0958d9;
+  --cf-success: #52c41a;
+  --cf-warning: #faad14;
+  --cf-error: #ff4d4f;
+  --cf-info: #1677ff;
+
+  /* 背景色 */
+  --cf-bg-primary: #ffffff;
+  --cf-bg-secondary: #fafafa;
+  --cf-bg-tertiary: #f5f5f5;
+  --cf-bg-page: #f0f2f5;
+
+  /* 文字色 */
+  --cf-text-primary: rgba(0, 0, 0, 0.88);
+  --cf-text-secondary: rgba(0, 0, 0, 0.65);
+  --cf-text-tertiary: rgba(0, 0, 0, 0.45);
+  --cf-text-disabled: rgba(0, 0, 0, 0.25);
+
+  /* 边框色 */
+  --cf-border-color: #f0f0f0;
+  --cf-border-color-hover: #d9d9d9;
+
+  /* 间距 */
+  --cf-spacing-xs: 4px;
+  --cf-spacing-sm: 8px;
+  --cf-spacing-md: 16px;
+  --cf-spacing-lg: 24px;
+  --cf-spacing-xl: 32px;
+
+  /* 圆角 */
+  --cf-radius-sm: 4px;
+  --cf-radius-md: 8px;
+  --cf-radius-lg: 12px;
+
+  /* 阴影 */
+  --cf-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02);
+  --cf-shadow-md: 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px rgba(0, 0, 0, 0.08);
+  --cf-shadow-lg: 0 6px 16px rgba(0, 0, 0, 0.08), 0 9px 28px rgba(0, 0, 0, 0.05);
+
+  /* 过渡 */
+  --cf-transition-fast: 0.15s ease;
+  --cf-transition-normal: 0.2s ease;
+  --cf-transition-slow: 0.3s ease;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f0f2f5;
-  color: rgba(0, 0, 0, 0.88);
+  background: var(--cf-bg-page);
+  color: var(--cf-text-primary);
+  font-size: 14px;
+  line-height: 1.5714;
 }
 
 #root {
@@ -17,8 +69,13 @@ body {
 }
 
 a {
-  color: inherit;
+  color: var(--cf-primary);
   text-decoration: none;
+  transition: color var(--cf-transition-fast);
+}
+
+a:hover {
+  color: var(--cf-primary-hover);
 }
 
 /* 登录页背景 */
@@ -39,6 +96,10 @@ a {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
 /* 语料列表 - 被拒绝行样式 */
 .row-rejected {
   background-color: #fff2f0 !important;
@@ -47,16 +108,76 @@ a {
   background-color: #fff1f0 !important;
 }
 
-/* 语料列表 - 统计卡片交互 */
-.ant-statistic-title {
-  font-size: 13px !important;
-  color: #8c8c8c !important;
-}
-
 /* 表格行悬浮效果增强 */
 .ant-table-tbody > tr {
-  transition: all 0.2s ease;
+  transition: all var(--cf-transition-fast);
 }
 .ant-table-tbody > tr:hover > td {
   cursor: pointer;
+}
+
+/* 卡片统一样式 */
+.ant-card {
+  border-radius: var(--cf-radius-md);
+  box-shadow: var(--cf-shadow-sm);
+  transition: box-shadow var(--cf-transition-normal);
+}
+.ant-card:hover {
+  box-shadow: var(--cf-shadow-md);
+}
+
+/* 统计卡片标题 */
+.ant-statistic-title {
+  font-size: 13px !important;
+  color: var(--cf-text-tertiary) !important;
+}
+
+/* 页面内容区最小高度 */
+.page-container {
+  min-height: calc(100vh - 160px);
+}
+
+/* 通用间距工具类 */
+.mb-0 { margin-bottom: 0; }
+.mb-sm { margin-bottom: var(--cf-spacing-sm); }
+.mb-md { margin-bottom: var(--cf-spacing-md); }
+.mb-lg { margin-bottom: var(--cf-spacing-lg); }
+
+.mt-sm { margin-top: var(--cf-spacing-sm); }
+.mt-md { margin-top: var(--cf-spacing-md); }
+.mt-lg { margin-top: var(--cf-spacing-lg); }
+
+/* 骨架屏动画 */
+@keyframes skeleton-loading {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 37%, #f0f0f0 63%);
+  background-size: 400px 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: var(--cf-radius-sm);
+}
+
+/* 响应式断点 */
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .ant-card-body {
+    padding: 12px !important;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

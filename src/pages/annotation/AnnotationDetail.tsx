@@ -15,7 +15,9 @@ import {
   FileTextOutlined,
   ClockCircleOutlined,
   FlagOutlined,
+  FormOutlined,
 } from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
 import type { ColumnsType } from 'antd/es/table'
 import dayjs from 'dayjs'
 import type { AnnotationTask, Corpus } from '../../types'
@@ -68,6 +70,7 @@ export default function AnnotationDetail({
   onEdit,
   onDelete,
 }: AnnotationDetailProps) {
+  const navigate = useNavigate()
   const { tasks, startTask, pauseTask, stopTask, completeTask } = useAnnotationStore()
   const { corpusList, getLibraryById } = useCorpusStore()
   const { users } = useAuthStore()
@@ -207,6 +210,15 @@ export default function AnnotationDetail({
           <Badge status={STATUS_COLOR[task.status] as any} text={STATUS_LABEL[task.status]} />
         </Space>
         <Space>
+          {task.status === 'in_progress' && (
+            <Button
+              type="primary"
+              icon={<FormOutlined />}
+              onClick={() => navigate(`/annotation/${task.id}/workspace`)}
+            >
+              开始标注
+            </Button>
+          )}
           {task.status === 'pending' && (
             <Button type="primary" icon={<PlayCircleOutlined />} onClick={handleStart}>
               启动任务

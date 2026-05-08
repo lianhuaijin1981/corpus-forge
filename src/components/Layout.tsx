@@ -7,6 +7,10 @@ import {
   Dropdown,
   Space,
   Typography,
+  Modal,
+  Form,
+  Input,
+  App,
 } from 'antd'
 import {
   DatabaseOutlined,
@@ -19,14 +23,25 @@ import {
   UserOutlined,
   UnorderedListOutlined,
   FolderOutlined,
+  KeyOutlined,
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { useAuthStore } from '../stores/authStore'
+import type { UserRole } from '../types'
 
 const { Header, Sider, Content } = Layout
 const { Text } = Typography
 
-const menuItems: MenuProps['items'] = [
+// 菜单项与角色权限映射
+interface MenuItemConfig {
+  key: string
+  icon?: React.ReactNode
+  label: string
+  roles?: UserRole[] // 允许访问的角色，undefined 表示所有角色
+  children?: MenuItemConfig[]
+}
+
+const menuConfig: MenuItemConfig[] = [
   {
     key: '/corpus-group',
     icon: <DatabaseOutlined />,
@@ -37,25 +52,56 @@ const menuItems: MenuProps['items'] = [
     ],
   },
   { key: '/annotation', icon: <EditOutlined />, label: '标注任务' },
-  { key: '/review', icon: <AuditOutlined />, label: '审核中心' },
+  { key: '/review', icon: <AuditOutlined />, label: '审核中心', roles: ['super_admin', 'admin', 'reviewer'] },
   { key: '/search', icon: <SearchOutlined />, label: '语料检索' },
   { key: '/stats', icon: <BarChartOutlined />, label: '统计分析' },
-  { key: '/admin', icon: <SettingOutlined />, label: '系统管理' },
+  { key: '/admin', icon: <SettingOutlined />, label: '系统管理', roles: ['super_admin', 'admin'] },
 ]
+
+// 根据用户角色过滤菜单
+function filterMenuByRole(
+  items: MenuItemConfig[],
+  userRoles: UserRole[]
+): MenuProps['items'] {
+  return items
+    .filter((item) => {
+      if (!item.roles) return true
+      return item.roles.some((role) => userRoles.includes(role))
+    })
+    .map((item) => {
+      const menuItem: NonNullable<MenuProps['items']>[number] = {
+        key: item.key,
+        icon: item.icon,
+        label: item.label,
+      }
+      if (item.children) {
+        const filteredChildren = filterMenuByRole(item.children, userRoles)
+        if (filteredChildren && filteredChildren.length > 0) {
+          (menuItem as { children: MenuProps['items'] }).children = filteredChildren
+        }
+      }
+      return menuItem
+    })
+    .filter(Boolean)
+}
 
 export default function AppLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const { currentUser, logout } = useAuthStore()
+  const { currentUser, logout, changePassword } = useAuthStore()
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false)
+  const [passwordForm] = Form.useForm()
+  const { message } = App.useApp()
 
   const pathname = location.pathname
-  // 精确匹配：/corpus/library 使用 /corpus/library，/corpus 使用 /corpus，其他路径原样
   const selectedKey = pathname
-  // 语料管理子路径默认展开
   const defaultOpenKeys = pathname.startsWith('/corpus') ? ['/corpus-group'] : []
-  // 对于 /annotation/:taskId 路径，高亮 /annotation
   const activeKey = pathname.startsWith('/annotation/') ? '/annotation' : selectedKey
+
+  // 根据当前用户角色过滤菜单
+  const userRoles = (currentUser?.roles || ['guest']) as UserRole[]
+  const filteredMenuItems = filterMenuByRole(menuConfig, userRoles)
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -63,18 +109,48 @@ export default function AppLayout() {
       icon: <UserOutlined />,
       label: '个人资料',
     },
+    {
+      key: 'change-password',
+      icon: <KeyOutlined />,
+      label: '修改密码',
+    },
     { type: 'divider' },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: '退出登录',
       danger: true,
-      onClick: () => {
-        logout()
-        navigate('/login')
-      },
     },
   ]
+
+  const handleUserMenuClick = ({ key }: { key: string }) => {
+    switch (key) {
+      case 'profile':
+        // TODO: 跳转个人资料页
+        break
+      case 'change-password':
+        passwordForm.resetFields()
+        setPasswordModalOpen(true)
+        break
+      case 'logout':
+        logout()
+        navigate('/login')
+        break
+    }
+  }
+
+  const handleChangePassword = () => {
+    passwordForm.validateFields().then((values) => {
+      const result = changePassword(values.oldPassword, values.newPassword)
+      if (result.success) {
+        message.success(result.message)
+        setPasswordModalOpen(false)
+        passwordForm.resetFields()
+      } else {
+        message.error(result.message)
+      }
+    })
+  }
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -103,7 +179,7 @@ export default function AppLayout() {
           mode="inline"
           selectedKeys={[activeKey]}
           defaultOpenKeys={defaultOpenKeys}
-          items={menuItems}
+          items={filteredMenuItems}
           onClick={({ key }) => navigate(key)}
         />
       </Sider>
@@ -122,7 +198,10 @@ export default function AppLayout() {
             zIndex: 99,
           }}
         >
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+          <Dropdown
+            menu={{ items: userMenuItems, onClick: handleUserMenuClick }}
+            placement="bottomRight"
+          >
             <Space style={{ cursor: 'pointer' }}>
               <Avatar
                 icon={<UserOutlined />}
@@ -138,6 +217,54 @@ export default function AppLayout() {
           <Outlet />
         </Content>
       </Layout>
+
+      {/* 修改密码弹窗 */}
+      <Modal
+        title="修改密码"
+        open={passwordModalOpen}
+        onOk={handleChangePassword}
+        onCancel={() => setPasswordModalOpen(false)}
+        okText="确认修改"
+        cancelText="取消"
+      >
+        <Form form={passwordForm} layout="vertical">
+          <Form.Item
+            name="oldPassword"
+            label="原密码"
+            rules={[{ required: true, message: '请输入原密码' }]}
+          >
+            <Input.Password placeholder="请输入原密码" />
+          </Form.Item>
+          <Form.Item
+            name="newPassword"
+            label="新密码"
+            rules={[
+              { required: true, message: '请输入新密码' },
+              { min: 6, message: '密码至少6个字符' },
+            ]}
+          >
+            <Input.Password placeholder="请输入新密码" />
+          </Form.Item>
+          <Form.Item
+            name="confirmPassword"
+            label="确认新密码"
+            dependencies={['newPassword']}
+            rules={[
+              { required: true, message: '请确认新密码' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('newPassword') === value) {
+                    return Promise.resolve()
+                  }
+                  return Promise.reject(new Error('两次输入的密码不一致'))
+                },
+              }),
+            ]}
+          >
+            <Input.Password placeholder="请再次输入新密码" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </Layout>
   )
 }
